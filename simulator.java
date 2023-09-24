@@ -8,11 +8,24 @@ public class simulator {
     private static final int MAXLINELENGTH = 1000;
 
     public static class State {
-        int pc;
+        int pc=0;
         int[] mem = new int[NUMMEMORY];
         int[] reg = new int[NUMREGS];
         int numMemory;
     }
+    /*
+         (address 0): 8454151 (hex 0x810007)
+         (address 1): 9043971 (hex 0x8a0003)
+         (address 2): 655361 (hex 0xa0001)
+         (address 3): 16842754 (hex 0x1010002)
+         (address 4): 16842749 (hex 0x100fffd)
+         (address 5): 29360128 (hex 0x1c00000)
+         (address 6): 25165824 (hex 0x1800000)
+         (address 7): 5 (hex 0x5)
+         (address 8): -1 (hex 0xffffffff)
+         (address 9): 2 (hex 0x2)
+     */
+
 
     public static void printState(State state) {
         System.out.println("\n@@@\nstate:");
@@ -50,9 +63,11 @@ public class simulator {
             System.exit(1);
         }
 
-        // Simulation code can be added here.
-
-        // Printing the initial state.
-        printState(state);
+        //printState(state);
+        //ตาต้าทำเอง
+        String binaryString = Integer.toBinaryString(state.mem[0]);
+        int originalNumber = Integer.parseInt(binaryString, 2);
+        int extractedBits = (originalNumber >> 21) & 0b111;
+        System.out.println("Bits 22, 23, 24: " + Integer.toBinaryString(extractedBits));
     }
 }
