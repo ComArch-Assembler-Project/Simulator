@@ -63,11 +63,91 @@ public class simulator {
             System.exit(1);
         }
 
-        //printState(state);
         //ตาต้าทำเอง
         String binaryString = Integer.toBinaryString(state.mem[0]);
         int originalNumber = Integer.parseInt(binaryString, 2);
         int extractedBits = (originalNumber >> 21) & 0b111;
         System.out.println("Bits 22, 23, 24: " + Integer.toBinaryString(extractedBits));
+
+        state.pc;
+        int total = 0;
+        int[] arg = new int[3];
+        int regA, regB, destReg;
+        for(i = 1; i != 1; i++){
+            printState(state);
+            total++;
+            switch (mem[pc] >> 22){
+                case 0: //add 000
+                    rFormat(mem[pc], arg);
+                    regA = state.reg[arg[0]];
+                    regB = state.reg[arg[1]];
+                    state.reg[arg[2]] = regA + regB;
+                    break;
+
+                case 1://nand 001
+                    rFormat(mem[pc], arg);
+                    regA = state.reg[arg[0]];
+                    regB = state.reg[arg[1]];
+                    state.reg[arg[2]] = ~(regA & regB);
+                    break;
+
+                case 2://lw 010
+                    iFormat(mem[pc], arg);
+                    regA = state.reg[arg[0]];
+                    regB = state.reg[arg[1]];
+                    //add code here ไม่รู้ละทำต่อให้หน่อย
+                    break;
+
+                case 3://sw 011
+                    iFormat(mem[pc], arg);
+                    regA = state.reg[arg[0]];
+                    regB = state.reg[arg[1]];
+                    //add code here ไม่รู้ละทำต่อให้หน่อย
+                    break;
+
+                case 4: //beq 100:
+                    iFormat(mem[pc], arg);
+                    regA = state.reg[arg[0]];
+                    regB = state.reg[arg[1]];
+                    //add code here ไม่รู้ละทำต่อให้หน่อย
+                    break;
+
+                case 5://jalr 101: เก็บค่า PC+1 ไว้ใน regB ซึ่ง PC คือ address ของ jalr instruction และกระโดดไปที่ address ที่ถูกเก็บไว้ใน regA แต่ถ้า regA และ regB คือ register ตัวเดียวกัน ให้เก็บ PC+1 ก่อน และค่อยกระโดดไปที่ PC+1
+                    jFormat(mem[pc], arg);
+                    regA = state.reg[arg[0]];
+                    regB = state.reg[arg[1]];
+                    if (regA = regB){
+                        pc++;
+                    }else {
+                        pc = regA;
+                    }
+                    break;
+
+                case 6://bhalt : เพิ่มค่า PC เหมือน instructions อื่นๆ และ halt เครื่อง นั่นคือให้ simulator รู้ว่าเครื่องมีการ halted เกิดขึ้น
+                    pc++;
+                    i = -1;
+                    break;
+
+                case 7://noop
+                    //ไม่ทำอะไร
+                    break;
+            }
+        }
+    }
+
+    private static void rFormat(int bit, int[] arg){ //r-format
+        arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 22-20
+        arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 19-17
+        arg[2] = bit & 7; // destReg เอา bit ที่ 2-0
+    }
+
+    private static void iFormat(int bit, int[] arg){
+        arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 22-20
+        arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 19-17
+        // ไม่รู้ละทำต่อให้หน่อย
+    }
+
+    private static void jFormat(int bit, int[] arg){
+        arg[0] = bit & 0x3FFFFFF; // regA เอา 22 bit แรก (0x3FFFFFF คือ 1 22ตัว)
     }
 }
