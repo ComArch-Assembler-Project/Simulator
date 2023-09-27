@@ -8,13 +8,13 @@ public class simulator {
     private static final int MAXLINELENGTH = 1000;
 
     public static class State {
-        int pc=0;
+        int pc = 0;
         int[] mem = new int[NUMMEMORY];
         int[] reg = new int[NUMREGS];
         int numMemory;
     }
     /*
-         (address 0): 8454151 (hex 0x810007)
+         (address 0): 8454151 (hex 0x810007) lw 0 1 five :load reg1 with 5 (uses symbolic address)
          (address 1): 9043971 (hex 0x8a0003)
          (address 2): 655361 (hex 0xa0001)
          (address 3): 16842754 (hex 0x1010002)
@@ -42,14 +42,14 @@ public class simulator {
     }
 
     public static void main(String[] args) {
+
         if (args.length != 1) {
             System.err.println("error: usage: java Simulator <machine-code file>");
             System.exit(1);
         }
-
+        //int
         String fileName = args[0];
         State state = new State();
-
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -67,13 +67,23 @@ public class simulator {
         String binaryString = Integer.toBinaryString(state.mem[0]);
         int originalNumber = Integer.parseInt(binaryString, 2);
         int extractedBits = (originalNumber >> 21) & 0b111;
-        System.out.println("Bits 22, 23, 24: " + Integer.toBinaryString(extractedBits));
+        String X = Integer.toBinaryString(extractedBits);
+        int[] op_args = new int[X.length()];
+        for (int i = 0; i < X.length(); i++) {
+            char digit = X.charAt(i);
+            op_args[i] = (digit == '1') ? 1 : 0;
+        }
+        System.out.println("Original string: " + X);
+        System.out.println("Split array: " + op_args[0]+op_args[1]+op_args[2]);
 
-        state.pc;
+        state.pc = 0;
+        int regA, regB, offset;
+        /*
+        int pc = state.pc;
         int total = 0;
         int[] arg = new int[3];
         int regA, regB, destReg;
-        for(i = 1; i != 1; i++){
+        for(int i = 1; i != 1; i++){
             printState(state);
             total++;
             switch (mem[pc] >> 22){
@@ -147,7 +157,9 @@ public class simulator {
         // ไม่รู้ละทำต่อให้หน่อย
     }
 
-    private static void jFormat(int bit, int[] arg){
+    private static void jFormat(int bit, int[] arg) {
         arg[0] = bit & 0x3FFFFFF; // regA เอา 22 bit แรก (0x3FFFFFF คือ 1 22ตัว)
+    }
+         */
     }
 }
