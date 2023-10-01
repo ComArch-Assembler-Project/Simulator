@@ -25,7 +25,9 @@ public class simulator {
          (address 4): 16842749 (hex 0x100fffd)
          //0000000 100 000 000 1111111111111101
          (address 5): 29360128 (hex 0x1c00000)
+         //0001110000000000000000000000
          (address 6): 25165824 (hex 0x1800000)
+
          (address 7): 5 (hex 0x5)
          (address 8): -1 (hex 0xffffffff)
          (address 9): 2 (hex 0x2)
@@ -86,8 +88,11 @@ public class simulator {
         int offset = 0;
         int[] arg = new int[3];
         int total = 0;
-        for (int i = 0; i <= 6; i++) { //TEST 2 LOOP
+        for (int i = 1; i != 0; i++){
+            total++;
             printState(state);
+            System.out.println("NEXT-STATE");
+            System.out.println(state.mem[state.pc] >> 22);
             switch (state.mem[state.pc] >> 22) {
                 case 0: //add 000
                     rFormat(state.mem[state.pc], arg);
@@ -97,10 +102,10 @@ public class simulator {
                     break;
 
                 case 1://nand 001
-                    //rFormat(mem[pc], arg);
-                    //regA = state.reg[arg[0]];
-                    //regB = state.reg[arg[1]];
-                    //state.reg[arg[2]] = ~(regA & regB);
+                    rFormat(state.mem[state.pc], arg);
+                    regA = state.reg[arg[0]];
+                    regB = state.reg[arg[1]];
+                    state.reg[arg[2]] = ~(regA & regB);
                     break;
 
                 case 2://lw 010
@@ -111,9 +116,9 @@ public class simulator {
                     break;
 
                 case 3://sw 011
-                    //iFormat(mem[pc], arg);
-                    //regA = state.reg[arg[0]];
-                    //regB = state.reg[arg[1]];
+                    iFormat(state.mem[state.pc], arg);
+                    regA = state.reg[arg[0]];
+                    regB = state.reg[arg[1]];
                     //add code here ไม่รู้ละทำต่อให้หน่อย
                     break;
 
@@ -122,32 +127,43 @@ public class simulator {
                     regA = state.reg[arg[0]];
                     regB = state.reg[arg[1]];
                     if( regA == regB ) {
+                        System.out.println("BEFORE PC"+state.pc);
                         state.pc = state.pc + arg[2];
+                        System.out.println("AFTER PC"+state.pc);
                         // the +1 is handled by the regular increment.
                     }
                     break;
 
                 case 5://jalr 101: เก็บค่า PC+1 ไว้ใน regB ซึ่ง PC คือ address ของ jalr instruction และกระโดดไปที่ address ที่ถูกเก็บไว้ใน regA แต่ถ้า regA และ regB คือ register ตัวเดียวกัน ให้เก็บ PC+1 ก่อน และค่อยกระโดดไปที่ PC+1
-                    //jFormat(mem[pc], arg);
-                    //regA = state.reg[arg[0]];
-                    //regB = state.reg[arg[1]];
-                    //if (regA = regB){
-                    //    pc++;
-                    //}else {
-                    //    pc = regA;
-                    //}
+                    jFormat(state.mem[state.pc], arg);
+                    regA = state.reg[arg[0]];
+                    regB = state.reg[arg[1]];
+                    if (regA == regB){
+                        state.pc++;
+                    }else {
+                        state.pc = regA;
+                    }
                     break;
 
                 case 6://bhalt : เพิ่มค่า PC เหมือน instructions อื่นๆ และ halt เครื่อง นั่นคือให้ simulator รู้ว่าเครื่องมีการ halted เกิดขึ้น
-                    //pc++;
-                    //i = -1;
+                    oFormat(state.mem[state.pc], arg);
+                    i = -2;
+                    System.out.println("end state\n" +
+                            "machine halted\n" +
+                            "total of "+total+" instructions executed\n" +
+                            "final state of machine:\n");
                     break;
 
                 case 7://noop
-                    //ไม่ทำอะไร
+                    oFormat(state.mem[state.pc], arg);
                     break;
             }
             state.pc++;
+
+            if( total > MAXLINELENGTH){
+                i = -1;
+                System.out.println("reached max length");
+            }
         }
     }
 
@@ -162,11 +178,16 @@ public class simulator {
         arg[2] = bit & 0xFFFF;
         int temp = convertNum(arg[2]);
         arg[2] = temp;
-        System.out.println("LOWER"+arg[0]+":"+arg[1]+":"+arg[2]);
-
+        //System.out.println("LOWER"+arg[0]+":"+arg[1]+":"+arg[2]);
     }
 
-    private static void jFormat(int bit, int[] arg) {
+    private static void jFormat(int bit, int[] arg){ //r-format
+        arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 22-20
+        arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 19-17
+        arg[2] = bit & 0xFFFF;; // destReg เอา bit ที่ 2-0
+    }
+
+    private static void oFormat(int bit, int[] arg) {
         arg[0] = bit & 0x3FFFFFF; // regA เอา 22 bit แรก (0x3FFFFFF คือ 1 22ตัว)
     }
 
