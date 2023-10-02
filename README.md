@@ -9,14 +9,14 @@ Assembly simulator
 > (simulator) Initialize ทุก registers ให้เป็น 0.
 
 - status
-   - [x] ADD
-   - [ ] NAND
-   - [x] LW
-   - [ ] SW
-   - [x] BEQ
-   - [ ] JALR
-   - [x] BHALT
-   - [x] NOOP
+   - [x] ADD 000
+   - [ ] NAND 001
+   - [x] LW 010
+   - [ ] SW 011
+   - [x] BEQ 100
+   - [ ] JALR 101
+   - [x] BHALT 110
+   - [x] NOOP 111
 
 > [!IMPORTANT]
 > R-type instructions (add, nand)
