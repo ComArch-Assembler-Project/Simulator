@@ -7,7 +7,7 @@ public class simulator {
     private static final int NUMREGS = 8; // number of machine registers
     private static final int MAXLINELENGTH = 1000;
 
-    public static class State {
+    public static class stateStruct {
         int pc;
         int[] mem = new int[NUMMEMORY];
         int[] reg = new int[NUMREGS];
@@ -34,7 +34,7 @@ public class simulator {
      */
 
 
-    public static void printState(State state) {
+    public static void printState(stateStruct state) {
         System.out.println("\n@@@\nstate:");
         System.out.println("\tpc " + state.pc);
         System.out.println("\tmemory:");
@@ -56,7 +56,7 @@ public class simulator {
         }
         //int
         String fileName = args[0];
-        State state = new State();
+        stateStruct state = new stateStruct();
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -117,12 +117,11 @@ public class simulator {
 
                 case 3://sw 011
                     iFormat(state.mem[state.pc], arg);
-                    regA = state.reg[arg[0]];
-                    regB = state.reg[arg[1]];
-                    //add code here ไม่รู้ละทำต่อให้หน่อย
+                    offset = arg[2] + state.reg[arg[0]];
+                    state.mem[offset] = state.reg[arg[1]];
                     break;
 
-                case 4: //beq 100:
+                case 4: //beq 100
                     iFormat(state.mem[state.pc], arg);
                     regA = state.reg[arg[0]];
                     regB = state.reg[arg[1]];
@@ -138,20 +137,19 @@ public class simulator {
                     jFormat(state.mem[state.pc], arg);
                     regA = state.reg[arg[0]];
                     regB = state.reg[arg[1]];
-                    if (regA == regB){
-                        state.pc++;
-                    }else {
-                        state.pc = regA;
+                    if (regA == regB) {
+                        regB = state.pc; // เก็บค่า PC+1 ลงใน regB
+                        state.pc = regB;
+                    } else {
+                        regB = state.pc; // เก็บค่า PC+1 ลงใน regB ก่อน
+                        state.pc = regA; // กระโดดไปยัง address ที่ถูกเก็บไว้ใน regA
                     }
+
                     break;
 
                 case 6://bhalt : เพิ่มค่า PC เหมือน instructions อื่นๆ และ halt เครื่อง นั่นคือให้ simulator รู้ว่าเครื่องมีการ halted เกิดขึ้น
                     oFormat(state.mem[state.pc], arg);
-                    i = -2;
-                    System.out.println("end state\n" +
-                            "machine halted\n" +
-                            "total of "+total+" instructions executed\n" +
-                            "final state of machine:\n");
+                    i = -1;
                     break;
 
                 case 7://noop
@@ -165,16 +163,20 @@ public class simulator {
                 System.out.println("reached max length");
             }
         }
+        System.out.println("machine halted\n" +
+                "total of "+total+" instructions executed\n" +
+                "final state of machine:\n");
+        printState(state);
     }
 
     private static void rFormat(int bit, int[] arg){ //r-format
-        arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 22-20
-        arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 19-17
+        arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 21-19
+        arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 18-16
         arg[2] = bit & 7; // destReg เอา bit ที่ 2-0
     }
     private static void iFormat(int bit, int[] arg){
-        arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 22-20
-        arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 19-17
+        arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 21-19
+        arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 18-16
         arg[2] = bit & 0xFFFF;
         int temp = convertNum(arg[2]);
         arg[2] = temp;
@@ -182,9 +184,9 @@ public class simulator {
     }
 
     private static void jFormat(int bit, int[] arg){ //r-format
-        arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 22-20
-        arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 19-17
-        arg[2] = bit & 0xFFFF;; // destReg เอา bit ที่ 2-0
+        arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 21-19
+        arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 18-16
+        arg[2] = 0; // destReg เอา bit ที่ 15-0
     }
 
     private static void oFormat(int bit, int[] arg) {
