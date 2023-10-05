@@ -99,6 +99,7 @@ public class simulator {
                     regA = state.reg[arg[0]];
                     regB = state.reg[arg[1]];
                     state.reg[arg[2]] = regA + regB;
+
                     break;
 
                 case 1://nand 001
@@ -106,6 +107,7 @@ public class simulator {
                     regA = state.reg[arg[0]];
                     regB = state.reg[arg[1]];
                     state.reg[arg[2]] = ~(regA & regB);
+
                     break;
 
                 case 2://lw 010
@@ -113,12 +115,14 @@ public class simulator {
                     iFormat(state.mem[state.pc], arg);
                     offset = arg[2] + state.reg[arg[0]];
                     state.reg[arg[1]] = state.mem[offset];
+
                     break;
 
                 case 3://sw 011
                     iFormat(state.mem[state.pc], arg);
                     offset = arg[2] + state.reg[arg[0]];
                     state.mem[offset] = state.reg[arg[1]];
+
                     break;
 
                 case 4: //beq 100
@@ -131,29 +135,32 @@ public class simulator {
                         System.out.println("AFTER PC"+state.pc);
                         // the +1 is handled by the regular increment.
                     }
+
                     break;
 
                 case 5://jalr 101: เก็บค่า PC+1 ไว้ใน regB ซึ่ง PC คือ address ของ jalr instruction และกระโดดไปที่ address ที่ถูกเก็บไว้ใน regA แต่ถ้า regA และ regB คือ register ตัวเดียวกัน ให้เก็บ PC+1 ก่อน และค่อยกระโดดไปที่ PC+1
                     jFormat(state.mem[state.pc], arg);
                     regA = state.reg[arg[0]];
                     regB = state.reg[arg[1]];
-                    if (regA == regB) {
-                        regB = state.pc; // เก็บค่า PC+1 ลงใน regB
-                        state.pc = regB;
+                    if (regB == regA) {
+                        //regB = state.pc; // เก็บค่า PC+1 ลงใน regB
                     } else {
-                        regB = state.pc; // เก็บค่า PC+1 ลงใน regB ก่อน
-                        state.pc = regA; // กระโดดไปยัง address ที่ถูกเก็บไว้ใน regA
+                        state.reg[arg[1]] = state.pc+1; // เก็บค่า PC+1 ลงใน regB ก่อน
                     }
+                    state.pc = regA;// กระโดดไปยัง address ที่ถูกเก็บไว้ใน regA
+                    state.pc--;
 
                     break;
 
                 case 6://bhalt : เพิ่มค่า PC เหมือน instructions อื่นๆ และ halt เครื่อง นั่นคือให้ simulator รู้ว่าเครื่องมีการ halted เกิดขึ้น
                     oFormat(state.mem[state.pc], arg);
                     i = -1;
+
                     break;
 
                 case 7://noop
                     oFormat(state.mem[state.pc], arg);
+
                     break;
             }
             state.pc++;
@@ -186,7 +193,7 @@ public class simulator {
     private static void jFormat(int bit, int[] arg){ //r-format
         arg[0] = (bit & (7 << 19 )) >> 19; // regA เอา bit ที่ 21-19
         arg[1] = (bit & (7 << 16 )) >> 16; // regB เอา bit ที่ 18-16
-        arg[2] = 0; // destReg เอา bit ที่ 15-0
+        arg[2] = bit & 0xFFFF; // destReg เอา bit ที่ 15-0
     }
 
     private static void oFormat(int bit, int[] arg) {
