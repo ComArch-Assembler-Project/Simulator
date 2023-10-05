@@ -91,8 +91,8 @@ public class simulator {
         for (int i = 1; i != 0; i++){
             total++;
             printState(state);
-            System.out.println("NEXT-STATE");
-            System.out.println(state.mem[state.pc] >> 22);
+            //System.out.println("NEXT-STATE");
+            //System.out.println(state.mem[state.pc] >> 22);
             switch (state.mem[state.pc] >> 22) {
                 case 0: //add 000
                     rFormat(state.mem[state.pc], arg);
