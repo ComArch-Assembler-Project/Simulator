@@ -10,11 +10,11 @@ Assembly simulator
 
 - status
    - [x] ADD 000
-   - [ ] NAND 001
+   - [x] NAND 001
    - [x] LW 010
-   - [ ] SW 011
+   - [x] SW 011
    - [x] BEQ 100
-   - [ ] JALR 101
+   - [x] JALR 101
    - [x] BHALT 110
    - [x] NOOP 111
 
