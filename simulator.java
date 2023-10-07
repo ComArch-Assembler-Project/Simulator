@@ -80,8 +80,9 @@ public class simulator {
             char digit = X.charAt(i);
             op_args[i] = (digit == '1') ? 1 : 0;
         }
-        System.out.println("Original string: " + X);
-        System.out.println("Split array: " + op_args[0] + op_args[1] + op_args[2]);
+        System.out.println();
+        //System.out.println("Original string: " + X);
+        //System.out.println("Split array: " + op_args[0] + op_args[1] + op_args[2]);
 
         state.pc = 0;
         int regA, regB;
@@ -130,9 +131,9 @@ public class simulator {
                     regA = state.reg[arg[0]];
                     regB = state.reg[arg[1]];
                     if( regA == regB ) {
-                        System.out.println("BEFORE PC"+state.pc);
+                        //System.out.println("BEFORE PC"+state.pc);
                         state.pc = state.pc + arg[2];
-                        System.out.println("AFTER PC"+state.pc);
+                        //System.out.println("AFTER PC"+state.pc);
                         // the +1 is handled by the regular increment.
                     }
 
@@ -172,7 +173,7 @@ public class simulator {
         }
         System.out.println("machine halted\n" +
                 "total of "+total+" instructions executed\n" +
-                "final state of machine:\n");
+                "final state of machine:");
         printState(state);
     }
 
